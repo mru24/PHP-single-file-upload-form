@@ -78,6 +78,19 @@
         width: 90%;
       }
     }
+    .gallery
+    {
+      column-count: 4;
+      column-gap: 5px;
+    }
+    .image
+    {
+      margin-bottom: 5px;
+    }
+    img
+    {
+      width: 100%;
+    }
   </style>
   <body>
     <div id="demo">
@@ -100,6 +113,12 @@
       </form>
 
 <?php
+$dirOK = false;
+$sizeOK = false;
+$typeOK = false;
+$result = false;
+$viewImages = false;
+
 if(isset($_POST['submit'])):
 
   // Upload folder location
@@ -112,10 +131,7 @@ if(isset($_POST['submit'])):
     'image/pjpeg',
     'image/png'
   );
-  $dirOK = false;
-  $sizeOK = false;
-  $typeOK = false;
-  $result = false;
+
 
   // check and create folder when necessary
   if(file_exists( $dir . $sub )):
@@ -145,11 +161,30 @@ if(isset($_POST['submit'])):
     if(!move_uploaded_file( $_FILES['file']['tmp_name'], $dir . $sub . $_FILES['file']['name'])):
       die( 'Failed to copy image' );
     else:
-      echo 'Image stored';
+      $viewImages = true;
     endif;
   else:
     echo 'Select proper image';
   endif;
+
+endif;
+
+if($viewImages):
+  $images = scandir($dir . $sub);
+?>
+<div class="gallery">
+<?php
+foreach ($images as $image):
+?>
+<div class="image">
+  <img src="<?php echo $dir . $sub . $image; ?>" alt="">
+</div>
+<?php
+endforeach;
+?>
+</div>
+
+<?php
 
 endif;
 
