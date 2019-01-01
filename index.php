@@ -83,9 +83,9 @@
     <div id="demo">
       <form action="" method="post" enctype="multipart/form-data">
         <h3 class="title">Single file upload form</h3>
-        <p>          
+        <p>
           <input type="file" name="file">
-          <label><small>Image size must be less than 1.5 MB</small></label>
+          <label><small>Maximum file size 1.5 MB</small></label>
         </p>
         <p>
           <select name="subfolder">
@@ -105,24 +105,50 @@ if(isset($_POST['submit'])):
   // Upload folder location
   $dir = 'images/';
   $sub = $_POST['subfolder'].'/';
+  $filesize = $_FILES['file']['size'];
+  $filetype = array(
+    'image/gif',
+    'image/jpeg',
+    'image/pjpeg',
+    'image/png'
+  );
+  $dirOK = false;
+  $sizeOK = false;
+  $typeOK = false;
+  $result = false;
 
-  // create folder if necessary and move file to upload folder
-  // print_r( $_FILES );
-  if(!file_exists( $dir . $sub )):
-    if(!mkdir( $dir . $sub, 0777, true )):
-      die( 'Failed to create folder' );
+  // check and create folder when necessary
+  if(file_exists( $dir . $sub )):
+    $dirOK = true;
+  else:
+    if(!mkdir( $dir . $sub, 0777, true)):
+      die('Failed to create folder');
+    else:
+      $dirOK = true;
+    endif;
+  endif;
+
+  // check file size
+  if($filesize < 1572864):
+    $sizeOK = true;
+  endif;
+  // check file type
+  foreach ($filetype as $permitted):
+    if($permitted == $_FILES['file']['type']):
+      $typeOK = true;
+      break;
+    endif;
+  endforeach;
+
+  if($dirOK && $sizeOK && $typeOK):
+    // copy file to folder
+    if(!move_uploaded_file( $_FILES['file']['tmp_name'], $dir . $sub . $_FILES['file']['name'])):
+      die( 'Failed to copy image' );
+    else:
+      echo 'Image stored';
     endif;
   else:
-    // check image size
-    if($_FILES['file']['size'] < 1500000):
-      if(!move_uploaded_file( $_FILES['file']['tmp_name'], $dir . $sub . $_FILES['file']['name'])):
-        die( 'Failed to copy image' );
-      else:
-        echo 'Image stored';
-      endif;
-    else:
-      echo 'Image is to large';
-    endif;
+    echo 'Select proper image';
   endif;
 
 endif;
