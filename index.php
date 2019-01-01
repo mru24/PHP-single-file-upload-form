@@ -34,6 +34,13 @@
       border-bottom: 1px solid #bbb;
       padding: 5px;
     }
+    label
+    {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 10px;
+    }
     select, input
     {
       width: 100%;
@@ -76,8 +83,9 @@
     <div id="demo">
       <form action="" method="post" enctype="multipart/form-data">
         <h3 class="title">Single file upload form</h3>
-        <p>
+        <p>          
           <input type="file" name="file">
+          <label><small>Image size must be less than 1.5 MB</small></label>
         </p>
         <p>
           <select name="subfolder">
@@ -105,10 +113,15 @@ if(isset($_POST['submit'])):
       die( 'Failed to create folder' );
     endif;
   else:
-    if(!move_uploaded_file( $_FILES['file']['tmp_name'], $dir . $sub . $_FILES['file']['name'])):
-      die( 'Failed to copy image' );
+    // check image size
+    if($_FILES['file']['size'] < 1500000):
+      if(!move_uploaded_file( $_FILES['file']['tmp_name'], $dir . $sub . $_FILES['file']['name'])):
+        die( 'Failed to copy image' );
+      else:
+        echo 'Image stored';
+      endif;
     else:
-      echo 'Image stored';
+      echo 'Image is to large';
     endif;
   endif;
 
