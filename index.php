@@ -1,12 +1,86 @@
 <?php
   Define('TITLE', 'WW Project Studio | Learn PHP');
+  $success = false;
+  $fail = false;
+  $msg = '';
+
+  if(isset($_POST['submit'])):
+    // Upload folder location
+    $dir = 'images/';
+    $sub = $_POST['subfolder'].'/';
+    $filesize = $_FILES['file']['size'];
+    $filetype = array(
+      'image/gif',
+      'image/jpeg',
+      'image/pjpeg'
+    );
+    $dirOK = false;
+    $sizeOK = false;
+    $typeOK = false;
+
+    // check and create folder when necessary
+    if(file_exists( $dir . $sub )):
+      $dirOK = true;
+    else:
+      if(!mkdir( $dir . $sub, 0777, true)):
+        die('Failed to create folder');
+      else:
+        $dirOK = true;
+      endif;
+    endif;
+    // check file size
+    if($filesize < 1572864):
+      $sizeOK = true;
+    endif;
+    // check file type
+    foreach ($filetype as $permitted):
+      if($permitted == $_FILES['file']['type']):
+        $typeOK = true;
+        break;
+      endif;
+    endforeach;
+
+
+    if(!$dirOK):
+      $fail = true;
+      $msg = 'Folder could not be created';
+    else:
+      if(!$sizeOK):
+        $fail = true;
+        $msg = 'Image size can not be greater than 1.5 MB';
+      else:
+        if(!$typeOK):
+          $fail = true;
+          $msg = 'Acceptable file types: gif, jpg';
+        else:
+          if(!move_uploaded_file( $_FILES['file']['tmp_name'], $dir . $sub . $_FILES['file']['name'])):
+            die([
+              $fail = true,
+              $msg = 'Failed to copy image'
+            ]);
+          else:
+            $success = true;
+            $msg = 'File copied';
+          endif;
+
+        endif;
+
+      endif;
+
+    endif;
+
+  endif;
 ?>
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
     <title><?php echo TITLE; ?></title>
   </head>
+
+<!-- Styles -->
+
   <style media="screen">
     body
     {
@@ -78,20 +152,41 @@
         width: 90%;
       }
     }
-    .gallery
+    .success, .fail
     {
-      column-count: 4;
-      column-gap: 5px;
+      border-radius: 5px;
+      color: white;
+      text-align: center;
+      animation: fadeIn 0.7s;
+      margin: auto;
     }
-    .image
+    .success
     {
-      margin-bottom: 5px;
+      background: #3ec640;
+      border: 4px solid #17aa18;
     }
-    img
+    .fail
     {
-      width: 100%;
+      background: #d53838;
+      border: 4px solid #a71717;
+    }
+    .msgText
+    {
+      padding: 30px 0;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        width: 0;
+      }
+      to {
+        opacity: 1;
+        width: 100%;
+      }
     }
   </style>
+
+
   <body>
     <div id="demo">
       <form action="" method="post" enctype="multipart/form-data">
@@ -112,87 +207,29 @@
         </p>
       </form>
 
+<!-- Success or fail messages -->
 <?php
-$dirOK = false;
-$sizeOK = false;
-$typeOK = false;
-$result = false;
-$viewImages = false;
-
-if(isset($_POST['submit'])):
-
-  // Upload folder location
-  $dir = 'images/';
-  $sub = $_POST['subfolder'].'/';
-  $filesize = $_FILES['file']['size'];
-  $filetype = array(
-    'image/gif',
-    'image/jpeg',
-    'image/pjpeg',
-    'image/png'
-  );
-
-
-  // check and create folder when necessary
-  if(file_exists( $dir . $sub )):
-    $dirOK = true;
-  else:
-    if(!mkdir( $dir . $sub, 0777, true)):
-      die('Failed to create folder');
-    else:
-      $dirOK = true;
-    endif;
+  if($success):
+?>
+      <div class="success">
+        <h2 class="msgText"><?php echo $msg; ?></h2>
+      </div>
+<?php
   endif;
 
-  // check file size
-  if($filesize < 1572864):
-    $sizeOK = true;
+  if($fail):
+?>
+      <div class="fail">
+        <h2 class="msgText"><?php echo $msg; ?></h2>
+      </div>
+<?php
   endif;
-  // check file type
-  foreach ($filetype as $permitted):
-    if($permitted == $_FILES['file']['type']):
-      $typeOK = true;
-      break;
-    endif;
-  endforeach;
-
-  if($dirOK && $sizeOK && $typeOK):
-    // copy file to folder
-    if(!move_uploaded_file( $_FILES['file']['tmp_name'], $dir . $sub . $_FILES['file']['name'])):
-      die( 'Failed to copy image' );
-    else:
-      $viewImages = true;
-    endif;
-  else:
-    echo 'Select proper image';
-  endif;
-
-endif;
-
-if($viewImages):
-  $images = scandir($dir . $sub);
 ?>
-<div class="gallery">
-<?php
-foreach ($images as $image):
-?>
-<div class="image">
-  <img src="<?php echo $dir . $sub . $image; ?>" alt="">
-</div>
-<?php
-endforeach;
-?>
-</div>
-
-<?php
-
-endif;
-
-?>
-
     </div>
-    <script type="text/javascript">
 
-    </script>
+<!-- Scripts -->
+
+    <script type="text/javascript"></script>
+
   </body>
 </html>
