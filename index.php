@@ -76,6 +76,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title><?php echo TITLE; ?></title>
   </head>
 
@@ -142,10 +143,10 @@
     {
       background: #3bd427;
     }
-    @media only screen and (max-width: 700px){
+    @media only screen and (max-width: 900px){
       #demo
       {
-        width: 100%;
+        width: 95%;
       }
       form
       {
@@ -158,6 +159,7 @@
       color: white;
       text-align: center;
       animation: fadeIn 0.7s;
+      width: 90%;
       margin: auto;
     }
     .success
@@ -181,7 +183,7 @@
       }
       to {
         opacity: 1;
-        width: 100%;
+        width: 90%;
       }
     }
   </style>
